@@ -1,4 +1,6 @@
 import customtkinter as ctk
+from src.ui.Button_add_password import Button_add_password
+from src.ui.MainContentElement import MainContentElement
 
 
 class KrakenSecureUI:
@@ -31,7 +33,6 @@ class KrakenSecureUI:
         # Кнопки навигации
         nav_buttons = [
             ("Add Password", self.add_password),
-            ("View Passwords", self.view_passwords),
             ("Generate Password", self.generate_password),
             ("Settings", self.open_settings)
         ]
@@ -52,24 +53,21 @@ class KrakenSecureUI:
         self.main_frame = ctk.CTkFrame(self.root, corner_radius=10)
         self.main_frame.pack(pady=20, padx=20, fill="both", expand=True)
 
-        # Заголовок
-        ctk.CTkLabel(
-            self.main_frame,
-            text="Password Manager Dashboard",
-            font=ctk.CTkFont(size=24, weight="bold"),
-            text_color="#2A8CFF"
-        ).pack(pady=30)
+        element = MainContentElement(self.main_frame)
+
+        element.pack(padx=10, pady=10, fill=ctk.X)
+        #
+        # # Заголовок
+        # ctk.CTkLabel(
+        #     self.main_frame,
+        #     text="Password Manager Dashboard",
+        #     font=ctk.CTkFont(size=24, weight="bold"),
+        #     text_color="#2A8CFF"
+        # ).pack(pady=30)
 
     # Методы-заглушки для окон
     def add_password(self):
-        window = ctk.CTkToplevel(self.root)
-        window.geometry("400x300")
-        window.title("Add New Password")
-
-    def view_passwords(self):
-        window = ctk.CTkToplevel(self.root)
-        window.geometry("800x500")
-        window.title("Stored Passwords")
+        Button_add_password()
 
     def generate_password(self):
         window = ctk.CTkToplevel(self.root)

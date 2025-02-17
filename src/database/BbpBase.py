@@ -1,4 +1,5 @@
 # Импортируем необходимые модули и классы
+from src.core.Database import get_session
 from src.database.Base import Base
 from sqlalchemy.orm import Mapped, mapped_column, sessionmaker
 from sqlalchemy import String
@@ -30,7 +31,7 @@ class BbpCRUD:
         Args:
             engine: SQLAlchemy engine, представляющий подключение к базе данных.
         """
-        self.Session = sessionmaker(bind=engine)  # Создаем сессию для работы с базой данных
+        self.Session = get_session()  # Создаем сессию для работы с базой данных
 
     def create(self, login, password, notes):
         """
@@ -63,6 +64,16 @@ class BbpCRUD:
         """
         with self.Session() as session:
             return session.get(BbpTableBase, record_id)  # Получаем запись по ID
+
+    def read_all(self):
+        """
+        Извлекает все записи из таблицы bbp.
+
+        :param session: Объект сессии SQLAlchemy для выполнения запросов.
+        :return: Список всех записей в таблице bbp.
+        """
+        with self.Session() as session:
+            return session.query(BbpTableBase).all()
 
     def update(self, record_id: int, update_data: BbpUpdateSchema):
         """

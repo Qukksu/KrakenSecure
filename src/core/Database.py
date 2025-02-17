@@ -16,15 +16,6 @@ class DataBase:
     def engine(self):
         return self._Engine
 
-    async def create_async_engine(self) -> AsyncEngine:
-        return create_async_engine(self._database_path, echo=True)
-
-    @property
-    async def async_engine(self) -> AsyncEngine:
-        if self._Async_engine is None:
-            self._Async_engine = await self.create_async_engine()  # Await the engine creation here
-        return self._Async_engine
-
     @property
     def metadata(self):
         return self._Metadata
@@ -33,13 +24,20 @@ class DataBase:
         Base.metadata.create_all(self._Engine)
 
 
-async def get_async_session():
-    engine = await database.async_engine
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-    # Инициализируем async_session только после создания таблиц и получения engine
-    _async_session = sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
-    return _async_session
+def get_session():
+    """
+    Создает и возвращает фабрику сессий SQLAlchemy, попутно создавая таблицы в базе данных, если они еще не существуют.
+
+    Returns:
+        sessionmaker: Фабрика сессий SQLAlchemy.
+    """
+
+    # Создаем таблицы, если их еще нет
+    Base.metadata.create_all(database.engine)
+
+    # Инициализируем sessionmaker с настроенным движком
+    _session = sessionmaker(bind=database.engine, expire_on_commit=False)
+    return _session
 
 
 database = DataBase(config.get("SQLITE_PATH"), echo=True)
