@@ -1,16 +1,22 @@
+# Импорт необходимых библиотек
 from fastapi import FastAPI, Request
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
 from typing import Dict
 
+# Создание экземпляра FastAPI приложения с метаданными
 app = FastAPI(
     title="KrakenSecure API",
     description="Security Management API",
     version="1.0.0"
 )
 
-# HTML template as a string
+# HTML шаблон в виде строки, содержащий:
+# - Bootstrap стили
+# - Темную навигационную панель
+# - Контейнер с карточкой безопасности
+# - Кастомные CSS стили для улучшения внешнего вида
 HTML_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="en">
@@ -63,14 +69,20 @@ HTML_TEMPLATE = """
 </html>
 """
 
+# Маршрут корневой страницы "/"
+# Возвращает HTML шаблон в качестве ответа
 @app.get("/", response_class=HTMLResponse)
 async def root():
     return HTML_TEMPLATE
 
+# Маршрут проверки работоспособности "/health"
+# Возвращает статус здоровья системы в формате JSON
 @app.get("/health")
 async def health_check() -> Dict[str, str]:
     return {"status": "healthy"}
 
+# Точка входа для запуска приложения
+# Запускает сервер uvicorn на localhost:7878
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="localhost", port=7878)
