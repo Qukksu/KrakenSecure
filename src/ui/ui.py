@@ -1,88 +1,90 @@
-# Импорт необходимых библиотек
-from fastapi import FastAPI, Request
-from fastapi.templating import Jinja2Templates
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import HTMLResponse
-from typing import Dict
+import customtkinter as ctk
 
-# Создание экземпляра FastAPI приложения с метаданными
-app = FastAPI(
-    title="KrakenSecure API",
-    description="Security Management API",
-    version="1.0.0"
-)
 
-# HTML шаблон в виде строки, содержащий:
-# - Bootstrap стили
-# - Темную навигационную панель
-# - Контейнер с карточкой безопасности
-# - Кастомные CSS стили для улучшения внешнего вида
-HTML_TEMPLATE = """
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KrakenSecure Dashboard</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            background-color: #f8f9fa;
-        }
-        .navbar {
-            margin-bottom: 2rem;
-            box-shadow: 0 2px 4px rgba(0,0,0,.1);
-        }
-        .card {
-            box-shadow: 0 4px 6px rgba(0,0,0,.1);
-        }
-        .card-header {
-            background-color: #343a40;
-            color: white;
-        }
-    </style>
-</head>
-<body>
-    <nav class="navbar navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="/">KrakenSecure</a>
-        </div>
-    </nav>
+class KrakenSecureUI:
+    def __init__(self):
+        self.root = ctk.CTk()
+        self.root.geometry("1000x680")
+        self.root.title("KrakenSecure Password Manager")
 
-    <div class="container mt-4">
-        <div class="row">
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h4>Security Dashboard</h4>
-                    </div>
-                    <div class="card-body">
-                        <p>Welcome to KrakenSecure Security Management System</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+        # Инициализация стилей
+        ctk.set_appearance_mode("dark")
+        ctk.set_default_color_theme("dark-blue")
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
-"""
+        # Инициализация компонентов
+        self.setup_sidebar()
+        self.setup_main_content()
 
-# Маршрут корневой страницы "/"
-# Возвращает HTML шаблон в качестве ответа
-@app.get("/", response_class=HTMLResponse)
-async def root():
-    return HTML_TEMPLATE
+    def setup_sidebar(self):
+        """Боковая панель с навигацией"""
+        self.sidebar = ctk.CTkFrame(self.root, width=200, corner_radius=0)
+        self.sidebar.pack(side="left", fill="y")
 
-# Маршрут проверки работоспособности "/health"
-# Возвращает статус здоровья системы в формате JSON
-@app.get("/health")
-async def health_check() -> Dict[str, str]:
-    return {"status": "healthy"}
+        # Логотип
+        ctk.CTkLabel(
+            self.sidebar,
+            text="KrakenSecure",
+            font=ctk.CTkFont(size=20, weight="bold"),
+            anchor="w"
+        ).pack(pady=(30, 40), padx=20)
 
-# Точка входа для запуска приложения
-# Запускает сервер uvicorn на localhost:7878
+        # Кнопки навигации
+        nav_buttons = [
+            ("Add Password", self.add_password),
+            ("View Passwords", self.view_passwords),
+            ("Generate Password", self.generate_password),
+            ("Settings", self.open_settings)
+        ]
+
+        for text, command in nav_buttons:
+            ctk.CTkButton(
+                self.sidebar,
+                text=text,
+                command=command,
+                fg_color="transparent",
+                border_width=2,
+                corner_radius=8,
+                anchor="w"
+            ).pack(pady=5, padx=10, fill="x")
+
+    def setup_main_content(self):
+        """Основная область контента"""
+        self.main_frame = ctk.CTkFrame(self.root, corner_radius=10)
+        self.main_frame.pack(pady=20, padx=20, fill="both", expand=True)
+
+        # Заголовок
+        ctk.CTkLabel(
+            self.main_frame,
+            text="Password Manager Dashboard",
+            font=ctk.CTkFont(size=24, weight="bold"),
+            text_color="#2A8CFF"
+        ).pack(pady=30)
+
+    # Методы-заглушки для окон
+    def add_password(self):
+        window = ctk.CTkToplevel(self.root)
+        window.geometry("400x300")
+        window.title("Add New Password")
+
+    def view_passwords(self):
+        window = ctk.CTkToplevel(self.root)
+        window.geometry("800x500")
+        window.title("Stored Passwords")
+
+    def generate_password(self):
+        window = ctk.CTkToplevel(self.root)
+        window.geometry("400x300")
+        window.title("Password Generator")
+
+    def open_settings(self):
+        window = ctk.CTkToplevel(self.root)
+        window.geometry("400x300")
+        window.title("Settings")
+
+    def run(self):
+        self.root.mainloop()
+
+
 if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="localhost", port=7878)
+    app = KrakenSecureUI()
+    app.run()
