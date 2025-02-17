@@ -1,90 +1,204 @@
-import customtkinter as ctk
+import flet as ft
 
+def main(page: ft.Page):
+    page.title = "Менеджер паролей"
+    page.vertical_alignment = "center"
+    page.horizontal_alignment = "center"
+    page.bgcolor = "#222222"
 
-class KrakenSecureUI:
-    def __init__(self):
-        self.root = ctk.CTk()
-        self.root.geometry("1000x680")
-        self.root.title("KrakenSecure Password Manager")
+    saved_passwords = []
 
-        # Инициализация стилей
-        ctk.set_appearance_mode("dark")
-        ctk.set_default_color_theme("dark-blue")
+    appbar = ft.AppBar(
+        leading=ft.Icon(ft.Icons.LOCK_OUTLINE, color=ft.colors.WHITE),
+        leading_width=40,
+        title=ft.Text("Менеджер паролей", color=ft.colors.WHITE),
+        center_title=False,
+        bgcolor="#333333",
+        actions=[
+            ft.TextButton(
+                content=ft.Text("Создать", color=ft.colors.WHITE),
+                on_click=lambda e: open_create_password()
+            ),
+            ft.TextButton(
+                content=ft.Text("Пароли", color=ft.colors.WHITE),
+                on_click=lambda e: open_saved_passwords()
+            ),
+        ],
+    )
 
-        # Инициализация компонентов
-        self.setup_sidebar()
-        self.setup_main_content()
+    password_input = ft.TextField(label="Введите пароль", password=True, width=300)
 
-    def setup_sidebar(self):
-        """Боковая панель с навигацией"""
-        self.sidebar = ctk.CTkFrame(self.root, width=200, corner_radius=0)
-        self.sidebar.pack(side="left", fill="y")
+    def check_password(e):
+        if password_input.value == "1111":
+            page.controls.clear()
+            page.appbar = appbar
+            show_welcome_page()
+            page.update()
+        else:
+            page.snack_bar = ft.SnackBar(ft.Text("Неверный пароль!"), bgcolor=ft.colors.RED)
+            page.snack_bar.open = True
+            page.update()
 
-        # Логотип
-        ctk.CTkLabel(
-            self.sidebar,
-            text="KrakenSecure",
-            font=ctk.CTkFont(size=20, weight="bold"),
-            anchor="w"
-        ).pack(pady=(30, 40), padx=20)
+    login_button = ft.ElevatedButton(
+        text="Войти",
+        on_click=check_password,
+        color=ft.colors.WHITE,
+        bgcolor="#7C4DFF",
+    )
 
-        # Кнопки навигации
-        nav_buttons = [
-            ("Add Password", self.add_password),
-            ("View Passwords", self.view_passwords),
-            ("Generate Password", self.generate_password),
-            ("Settings", self.open_settings)
-        ]
+    login_content = ft.Column(
+        [password_input, login_button],
+        horizontal_alignment="center",
+        spacing=20,
+    )
 
-        for text, command in nav_buttons:
-            ctk.CTkButton(
-                self.sidebar,
-                text=text,
-                command=command,
-                fg_color="transparent",
-                border_width=2,
-                corner_radius=8,
-                anchor="w"
-            ).pack(pady=5, padx=10, fill="x")
+    def show_welcome_page():
+        welcome_content = ft.Column(
+            [
+                ft.Text("Добро пожаловать в Менеджер паролей!", size=24, color="lightgreen"),
+                ft.Text("Управляйте своими паролями легко и безопасно.", size=16, color="white"),
+            ],
+            horizontal_alignment="center",
+            spacing=10,
+        )
+        page.add(welcome_content)
+        page.update()
 
-    def setup_main_content(self):
-        """Основная область контента"""
-        self.main_frame = ctk.CTkFrame(self.root, corner_radius=10)
-        self.main_frame.pack(pady=20, padx=20, fill="both", expand=True)
+    def open_create_password():
+        page.controls.clear()
+        page.appbar = appbar
 
-        # Заголовок
-        ctk.CTkLabel(
-            self.main_frame,
-            text="Password Manager Dashboard",
-            font=ctk.CTkFont(size=24, weight="bold"),
-            text_color="#2A8CFF"
-        ).pack(pady=30)
+        login_field = ft.TextField(label="Логин", width=300)
+        password_field = ft.TextField(label="Пароль", password=True, width=300)
+        note_field = ft.TextField(label="Заметка (необязательно)", width=300)
 
-    # Методы-заглушки для окон
-    def add_password(self):
-        window = ctk.CTkToplevel(self.root)
-        window.geometry("400x300")
-        window.title("Add New Password")
+        def save_record(e):
+            if login_field.value and password_field.value:
+                saved_passwords.append({
+                    "login": login_field.value,
+                    "password": password_field.value,
+                    "note": note_field.value,
+                })
+                page.snack_bar = ft.SnackBar(ft.Text("Запись успешно сохранена!"), bgcolor=ft.colors.GREEN)
+                page.snack_bar.open = True
+                open_saved_passwords()
+                page.update()
+            else:
+                page.snack_bar = ft.SnackBar(ft.Text("Логин и пароль обязательны!"), bgcolor=ft.colors.RED)
+                page.snack_bar.open = True
+                page.update()
 
-    def view_passwords(self):
-        window = ctk.CTkToplevel(self.root)
-        window.geometry("800x500")
-        window.title("Stored Passwords")
+        save_button = ft.ElevatedButton(text="Сохранить", on_click=save_record)
 
-    def generate_password(self):
-        window = ctk.CTkToplevel(self.root)
-        window.geometry("400x300")
-        window.title("Password Generator")
+        create_password_content = ft.Column(
+            [
+                ft.Text("Создание записи", size=20, color="white"),
+                login_field,
+                password_field,
+                note_field,
+                save_button,
+            ],
+            horizontal_alignment="center",
+            spacing=20,
+        )
 
-    def open_settings(self):
-        window = ctk.CTkToplevel(self.root)
-        window.geometry("400x300")
-        window.title("Settings")
+        page.add(create_password_content)
+        page.update()
 
-    def run(self):
-        self.root.mainloop()
+    def copy_to_clipboard(value):
+        page.set_clipboard(value)
+        page.snack_bar = ft.SnackBar(ft.Text(f"Скопировано: {value}"), bgcolor=ft.colors.GREEN)
+        page.snack_bar.open = True
+        page.update()
 
+    def open_saved_passwords():
+        page.controls.clear()
+        page.appbar = appbar
 
-if __name__ == "__main__":
-    app = KrakenSecureUI()
-    app.run()
+        if not saved_passwords:
+            saved_passwords_content = ft.Column(
+                [
+                    ft.Text("Сохраненные пароли", size=20, color="white"),
+                    ft.Text("У вас пока нет сохраненных паролей.", size=16, color="white"),
+                ],
+                horizontal_alignment="center",
+                spacing=10,
+            )
+        else:
+            saved_passwords_list = []
+            for index, record in enumerate(saved_passwords):
+                def delete_record(e, idx):
+                    del saved_passwords[idx]
+                    open_saved_passwords()
+                    page.update()
+
+                card_content = ft.Container(
+                    content=ft.Column(
+                        [
+                            ft.Row(
+                                [
+                                    ft.Text(f"Логин: {record['login']}", size=16, color="white"),
+                                    ft.IconButton(
+                                        icon=ft.icons.CONTENT_COPY,
+                                        on_click=lambda e, login=record['login']: copy_to_clipboard(login),
+                                        tooltip="Копировать логин",
+                                        style=ft.ButtonStyle(color=ft.colors.WHITE)
+                                    ),
+                                ],
+                                alignment="spaceBetween",
+                            ),
+                            ft.Row(
+                                [
+                                    ft.Text(f"Пароль: {'●' * len(record['password'])}", size=16, color="white"),
+                                    ft.IconButton(
+                                        icon=ft.icons.CONTENT_COPY,
+                                        on_click=lambda e, password=record['password']: copy_to_clipboard(password),
+                                        tooltip="Копировать пароль",
+                                        style=ft.ButtonStyle(color=ft.colors.WHITE)
+                                    ),
+                                ],
+                                alignment="spaceBetween",
+                            ),
+                            ft.Row(
+                                [
+                                    ft.Text(f"Заметка: {record['note']}" if record['note'] else "Без заметки", color="white"),
+                                    ft.IconButton(
+                                        icon=ft.icons.DELETE_FOREVER,
+                                        on_click=lambda e, idx=index: delete_record(e, idx),
+                                        tooltip="Удалить запись",
+                                        style=ft.ButtonStyle(color=ft.colors.WHITE)
+                                    ),
+                                ],
+                                alignment="spaceBetween",
+                            ),
+                        ],
+                        spacing=10,
+                    ),
+                    padding=15,
+                    border_radius=10,
+                    bgcolor="#333333",
+                    margin=ft.margin.symmetric(horizontal=10, vertical=5),
+                )
+                saved_passwords_list.append(card_content)
+
+            saved_passwords_content = ft.Column(
+                [
+                    ft.Text("Сохраненные пароли", size=20, color="white"),
+                    *saved_passwords_list,
+                ],
+                horizontal_alignment="center",
+                spacing=10,
+            )
+
+        container = ft.Container(
+            content=saved_passwords_content,
+            width=600,
+            height=800,
+            alignment=ft.alignment.center,
+        )
+        page.add(container)
+        page.update()
+
+    page.add(login_content)
+
+ft.app(target=main)
