@@ -8,6 +8,17 @@ def main(page: ft.Page):
 
     saved_passwords = []
 
+    # Функции для меню
+    def open_settings(e):
+        page.snack_bar = ft.SnackBar(ft.Text("Настройки пока недоступны"), bgcolor=ft.colors.ORANGE)
+        page.snack_bar.open = True
+        page.update()
+
+    def open_creators(e):
+        page.snack_bar = ft.SnackBar(ft.Text("Разработано командой гениев"), bgcolor=ft.colors.ORANGE)
+        page.snack_bar.open = True
+        page.update()
+
     appbar = ft.AppBar(
         leading=ft.Icon(ft.Icons.LOCK_OUTLINE, color=ft.colors.WHITE),
         leading_width=40,
@@ -23,9 +34,19 @@ def main(page: ft.Page):
                 content=ft.Text("Пароли", color=ft.colors.WHITE),
                 on_click=lambda e: open_saved_passwords()
             ),
+            ft.PopupMenuButton(
+                icon=ft.icons.MORE_VERT,
+                tooltip="Дополнительно",
+                items=[
+                    ft.PopupMenuItem(text="Настройки", on_click=open_settings),
+                    ft.PopupMenuItem(text="Создатели", on_click=open_creators),
+                ],
+                icon_color=ft.colors.WHITE
+            )
         ],
     )
 
+    # Остальной код без изменений
     password_input = ft.TextField(label="Введите пароль", password=True, width=300)
 
     def check_password(e):
@@ -55,7 +76,13 @@ def main(page: ft.Page):
     def show_welcome_page():
         welcome_content = ft.Column(
             [
-                ft.Text("Добро пожаловать в Менеджер паролей!", size=24, color="lightgreen"),
+                ft.Row(
+                    [
+                        ft.Text("Добро пожаловать в менеджер паролей", size=24, color="white"),
+                        ft.Text("KrakenSecure", size=24, color="#7C4DFF"),
+                    ],
+                    alignment="center",
+                ),
                 ft.Text("Управляйте своими паролями легко и безопасно.", size=16, color="white"),
             ],
             horizontal_alignment="center",
