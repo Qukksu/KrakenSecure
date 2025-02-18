@@ -6,6 +6,8 @@ from typing import Any, Optional, List
 from pydantic import BaseModel
 
 
+# Penis
+
 class BbpTableBase(Base):
     __tablename__ = "bbp"  # Указываем имя таблицы в базе данных
 
