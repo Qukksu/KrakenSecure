@@ -27,6 +27,7 @@ class Config:
 
     def set_default(self):
         self.set("SQLITE_PATH", "")
+        self.set("LOCALIZATION_FILE", "")
 
     def _update_env_file(self, key, value):
         with open(self.env_file, 'r') as f:
