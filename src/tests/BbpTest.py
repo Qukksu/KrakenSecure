@@ -9,7 +9,7 @@ class TestBbpCRUD(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         # Настройка тестовой базы данных
-        cls.engine = create_engine('sqlite:///:memory:')  # Используем in-memory SQLite для тестов
+        cls.engine = create_engine('sqlite:///database.db')  # Используем in-memory SQLite для тестов
         cls.Session = sessionmaker(bind=cls.engine)
         cls.crud = BbpCRUD(cls.engine)
         # Создание таблицы для тестирования (необходимо добавить определение BbpTableBase)
