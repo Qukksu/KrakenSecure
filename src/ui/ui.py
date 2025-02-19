@@ -1,5 +1,6 @@
 import flet as ft
 
+
 class PasswordManager:
     def __init__(self, page: ft.Page):
         self.page = page
@@ -89,30 +90,42 @@ class PasswordManager:
             [
                 ft.Row(
                     [
-                        ft.Text("Добро пожаловать в менеджер паролей", size=24, color="white"),
-                        ft.Text("KrakenSecure", size=24, color="#7C4DFF"),
+                        ft.Text(
+                            "Добро пожаловать в менеджер паролей",
+                            size=24,
+                            color="white"),
+                        ft.Text(
+                            "KrakenSecure",
+                            size=24,
+                            color="#7C4DFF"),
                     ],
-                    alignment=ft.MainAxisAlignment.CENTER
-                ),
+                    alignment=ft.MainAxisAlignment.CENTER),
                 ft.Text(
                     "Управляйте своими паролями легко и безопасно.",
                     size=16,
                     color="white",
-                    text_align=ft.TextAlign.CENTER
-                ),
+                    text_align=ft.TextAlign.CENTER),
             ],
             spacing=15,
             horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-            alignment=ft.MainAxisAlignment.CENTER
-        )
+            alignment=ft.MainAxisAlignment.CENTER)
         self._navigate(welcome_content)
 
     def _navigate_to_create(self):
         fields = {
-            "Логин": ft.TextField(label="Логин", width=300, border_color="#7C4DFF"),
-            "Пароль": ft.TextField(label="Пароль", password=True, width=300, border_color="#7C4DFF"),
-            "Заметка": ft.TextField(label="Заметка (необязательно)", width=300, border_color="#7C4DFF")
-        }
+            "Логин": ft.TextField(
+                label="Логин",
+                width=300,
+                border_color="#7C4DFF"),
+            "Пароль": ft.TextField(
+                label="Пароль",
+                password=True,
+                width=300,
+                border_color="#7C4DFF"),
+            "Заметка": ft.TextField(
+                label="Заметка (необязательно)",
+                width=300,
+                border_color="#7C4DFF")}
 
         save_button = ft.ElevatedButton(
             "Сохранить",
@@ -124,14 +137,18 @@ class PasswordManager:
 
         form_content = ft.Column(
             [
-                ft.Text("Создание записи", size=20, color="white", text_align=ft.TextAlign.CENTER),
+                ft.Text(
+                    "Создание записи",
+                    size=20,
+                    color="white",
+                    text_align=ft.TextAlign.CENTER),
                 *fields.values(),
-                ft.Container(save_button, alignment=ft.alignment.center)
-            ],
+                ft.Container(
+                    save_button,
+                    alignment=ft.alignment.center)],
             spacing=20,
             horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-            width=400
-        )
+            width=400)
         self._navigate(form_content)
 
     def _save_record(self, fields):
@@ -139,21 +156,24 @@ class PasswordManager:
             self._show_snackbar("Логин и пароль обязательны!", ft.colors.RED)
             return
 
-        self.saved_passwords.append({
+        record = {
             "login": fields["Логин"].value,
             "password": fields["Пароль"].value,
             "note": fields["Заметка"].value or ""
-        })
+        }
+
+        encrypted_record = self.core.encrypt_data(record)
+        self.saved_passwords.append(record)
+        self._save_to_file(encrypted_record)
         self._show_snackbar("Запись успешно сохранена!")
         self._navigate_to_passwords()
-
     def _navigate_to_passwords(self):
         content = ft.ListView(
             controls=[
                 ft.Text("Сохраненные пароли",
-                       size=20,
-                       color="white",
-                       text_align=ft.TextAlign.CENTER)
+                        size=20,
+                        color="white",
+                        text_align=ft.TextAlign.CENTER)
             ],
             spacing=15,
             width=600,
@@ -164,9 +184,9 @@ class PasswordManager:
         if not self.saved_passwords:
             content.controls.append(
                 ft.Text("У вас пока нет сохраненных паролей.",
-                       size=16,
-                       color="white",
-                       text_align=ft.TextAlign.CENTER)
+                        size=16,
+                        color="white",
+                        text_align=ft.TextAlign.CENTER)
             )
         else:
             content.controls.extend(
@@ -193,18 +213,23 @@ class PasswordManager:
     def _create_row(self, label, value, copyable=False):
         return ft.Row(
             [
-                ft.Text(f"{label}:", size=16, color="white", width=80),
-                ft.Text(value, size=16, color="white", expand=True),
+                ft.Text(
+                    f"{label}:",
+                    size=16,
+                    color="white",
+                    width=80),
+                ft.Text(
+                    value,
+                    size=16,
+                    color="white",
+                    expand=True),
                 ft.Container(
                     self._create_copy_button(value) if copyable else ft.Container(),
                     alignment=ft.alignment.center_right,
-                    expand=True
-                )
-            ],
+                    expand=True)],
             alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
             vertical_alignment=ft.CrossAxisAlignment.CENTER,
-            width=500
-        )
+            width=500)
 
     def _create_note_row(self, record, index):
         return ft.Row(
@@ -249,7 +274,9 @@ class PasswordManager:
         del self.saved_passwords[index]
         self._navigate_to_passwords()
 
+
 def main(page: ft.Page):
     PasswordManager(page)
+
 
 ft.app(target=main)
