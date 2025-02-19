@@ -6,9 +6,6 @@ from typing import Any, Optional, List
 from pydantic import BaseModel
 
 
-# Penis
-#fixme: поменяй название класса и таблицы, а то как то не серьезно
-
 class BbpTableBase(Base):
     """
     Класс, представляющий структуру таблицы "bbp" в базе данных.
@@ -148,4 +145,3 @@ class BbpCRUD:
                 session.commit()  # Сохраняем изменения в базе данных
                 return True
             return False
-
