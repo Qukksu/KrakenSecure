@@ -7,24 +7,56 @@ from pydantic import BaseModel
 
 
 # Penis
+#fixme: поменяй название класса и таблицы, а то как то не серьезно
 
 class BbpTableBase(Base):
+    """
+    Класс, представляющий структуру таблицы "bbp" в базе данных.
+
+    Атрибуты:
+        __tablename__ (str): Имя таблицы в базе данных.
+        id (Mapped[int]): Уникальный идентификатор записи (первичный ключ).
+        login (Mapped[str]): Логин пользователя (максимальная длина - 30 символов).
+        password (Mapped[str]): Пароль пользователя.
+        notes (Mapped[str]): Заметки пользователя.
+    """
     __tablename__ = "bbp"  # Указываем имя таблицы в базе данных
 
     # Определяем столбцы таблицы с помощью Mapped
     id: Mapped[int] = mapped_column(primary_key=True)  # Первичный ключ
     login: Mapped[str] = mapped_column(String(30))  # Логин пользователя (макс. 30 символов)
     password: Mapped[str] = mapped_column(String)  # Пароль пользователя
-    notes: Mapped[List[str]] = mapped_column(String)  # Заметки пользователя
+    notes: Mapped[str] = mapped_column(String)  # Заметки пользователя
+
+    def __repr__(self):
+        """
+        Возвращает строковое представление объекта BbpTableBase.
+
+        Returns:
+            str: Строковое представление объекта в формате "login ; password ; notes".
+        """
+        return f"{self.login} ; {self.password} ; {self.notes}"
 
 
 class BbpUpdateSchema(BaseModel):
+    """
+    Pydantic модель для обновления данных в таблице "bbp".
+
+    Атрибуты:
+        login (Optional[str]): Логин для обновления (необязательный).
+        password (Optional[str]): Пароль для обновления (необязательный).
+        notes (Optional[str]): Заметки для обновления (необязательный).
+    """
     login: Optional[str] = None  # Логин для обновления (необязательный)
     password: Optional[str] = None  # Пароль для обновления (необязательный)
     notes: Optional[str] = None  # Заметки для обновления (необязательный)
 
 
 class BbpCRUD:
+    """
+    Класс для выполнения CRUD-операций с таблицей "bbp" в базе данных.
+    """
+
     def __init__(self, engine):
         """
         Инициализирует CRUD-операции, создавая сессию подключения к базе данных.
@@ -66,6 +98,16 @@ class BbpCRUD:
         with self.Session() as session:
             return session.get(BbpTableBase, record_id)  # Получаем запись по ID
 
+    def read_all(self):
+        """
+        Получает все записи из таблицы "bbp".
+
+        Returns:
+            List[BbpTableBase]: Список объектов записей.
+        """
+        with self.Session() as session:
+            return session.query(BbpTableBase).all()
+
     def update(self, record_id: int, update_data: BbpUpdateSchema):
         """
         Обновляет запись в таблице "bbp" по ID, используя Pydantic модель.
@@ -106,3 +148,4 @@ class BbpCRUD:
                 session.commit()  # Сохраняем изменения в базе данных
                 return True
             return False
+
