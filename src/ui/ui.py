@@ -1,7 +1,4 @@
 import flet as ft
-from src.utils.AesDriver import AesDriver
-import json
-import os
 
 
 class PasswordManager:
@@ -165,25 +162,10 @@ class PasswordManager:
             "note": fields["Заметка"].value or ""
         }
 
+        # encrypted_record = self.core.encrypt_data(record)
         self.saved_passwords.append(record)
-        self._save_to_file()
+        # self._save_to_file(encrypted_record)
         self._show_snackbar("Запись успешно сохранена!")
-        self._navigate_to_passwords()
-
-    def _save_to_file(self):
-        # Save to unencrypted file first
-        with open(self.db_path, 'w') as f:
-            json.dump(self.saved_passwords, f)
-
-        # Encrypt the file
-        self.aes_driver.encrypt(self.db_path, self.encrypted_db_path, "1111")
-
-        # Remove unencrypted file
-        os.remove(self.db_path)
-
-    def _delete_record(self, index):
-        del self.saved_passwords[index]
-        self._save_to_file()
         self._navigate_to_passwords()
 
     def _navigate_to_passwords(self):
